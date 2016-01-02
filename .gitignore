@@ -5,6 +5,12 @@ __pycache__/
 # C extensions
 *.so
 
+# Pickle files
+*.pkl
+
+# Text files
+*.txt
+
 # Distribution / packaging
 .Python
 env/
@@ -55,3 +61,10 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# Custom folders
+Archive/
+.Trash-1000/
+
+# Custom files
+.open_tippeliga
