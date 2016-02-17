@@ -14,8 +14,6 @@ class DB:
 		try:
 			result = self.db[collection].insert(data)
 		except Exception as e:
-			print e
-			sys.exit()
 			print('Error while inserting to collection \'{0}\''.format(collection))
 
 	def update_exists(self, collection, key, data):

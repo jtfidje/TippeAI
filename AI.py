@@ -9,9 +9,7 @@ import math
 # Third-party libraries
 
 # Own libraries
-import Scraper
-import Functions as func
-import Extractor as ext
+import Functions as lib
 
 data_keys = {
 	"home_team":u"Start",
@@ -23,13 +21,16 @@ data_keys = {
 	"time":u"18.00"
 }
 
+vector = lib.create_vector(data_keys)
+
 prob = pickle.load(open("prob.pkl", "rb"))
 
-data_res = {"H":prob["H"]['prior'], "B":prob["B"]['prior'], "U":prob["U"]['prior']}
+data_res = {"H":prob["H"][len(data_keys)], "B":prob["B"][len(data_keys)], "U":prob["U"][len(data_keys)]}
 
 for res in data_res:
-	for k, v in data_keys.items():
-		data_res[res] += math.log(prob[res][k][v])
+	for x in range(len(vector)):
+		#data_res[res] += math.log(prob[res][x][vector[x]])
+		data_res[res] *= prob[res][x][vector[x]]
 
 for k, v in data_res.items():
-	print k, v
+	print(k, v)
