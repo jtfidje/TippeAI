@@ -58,7 +58,7 @@ def check_for_new_matches(tournament_id, season_id):
 
 	print 'Checking for new played matches'
 
-	match_ids = db.get_match_ids()
+	match_ids = [x for x in db.find_all('matches')]
 	
 	match_link_list = [i for i in datalist if i[i.index('matchId')+8:i.index('&amp;tournamentId')] not in match_ids]
 
@@ -69,28 +69,19 @@ def check_for_new_matches(tournament_id, season_id):
 		match_link_list[:] = [re.sub('&amp;', '&', i) for i in match_link_list]
 
 		for link in match_link_list:
-			db_contents = db.get_all()
 
 			match_data = extract_new_match_data(link)
-
-			if match_data['time'] not in db_contents['times']: db.insert_new_time(match_data['time'])	
-			if match_data['day'] not in db_contents['days']: db.insert_new_day(match_data['day'])
-			if match_data['month'] not in db_contents['months']: db.insert_new_month(match_data['month'])
-			if match_data['year'] not in db_contents['years']: db.insert_new_year(match_data['year'])
-			if match_data['stadium'] not in db_contents['stadiums']: db.insert_new_stadium(match_data['stadium'])
-			if match_data['home_team'] not in db_contents['teams']: db.insert_new_team(match_data['home_team'])
-			if match_data['away_team'] not in db_contents['teams']: db.insert_new_team(match_data['away_team'])
-			if match_data['result'] not in db_contents['results']: db.insert_new_result(match_data['result'])
+			_id = match_data.pop('id')
 			
-			db.insert_new_match(match_data)
+			doc = {'_id':_id, 'data':match_data}
 
+			db.insert('tippeliga', doc)
+			
 			print '\n', '-----', '\n'
 
 		print 'All done!'
 	else:
 		print 'No new matches found!'
-
-	db.close_connection()
 
 ''' -------------------------------------------------- '''
 #	This function will connect to the given url and 	 #
@@ -103,8 +94,6 @@ def extract_new_match_data(link):
 	stadium = ext.get_stadium_name(data)
 	day, month, year, time = ext.get_date_and_time(data)
 	result = ext.get_results(data)
-	#home_team_players, away_team_players = ext.get_players(data)
-	#home_team_formation, away_team_formation = ext.get_formations(data)
 	
 	#--------------------------------------#
 	#        Write results to file         #
@@ -144,13 +133,13 @@ def extract_unplayed_match(url):
 	stadium = ext.get_stadium_name(data)
 	home_team, away_team = ext.get_team_names(data)
 
-	results = { 'day':day, 
-				'month':month, 
-				'year':year,
-				'time':time,
-				'stadium':stadium,
-				'home_team':home_team,
-				'away_team':away_team
-				}
+	results = { 	'day':day, 
+			'month':month, 
+			'year':year,
+			'time':time,
+			'stadium':stadium,
+			'home_team':home_team,
+			'away_team':away_team
+			}
 
 	return results
