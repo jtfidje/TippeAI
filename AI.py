@@ -9,16 +9,11 @@ import sys
 import math
 
 # Third-party libraries
-from prettytable import PrettyTable
 
 # Own libraries
 import Library as lib
-from DB import DB
 
-db = DB()
-
-# Load test data from db
-#test_data = list(db.find_all('tippeliga'))[3000:]
+# Load test data
 db_data = json.load(open('match.json'))
 test_data = db_data[3000:]
 
@@ -45,7 +40,6 @@ correct = [0, 0]
 # Init. confusion matrix
 confusion_matrix = {x:{y:0 for y in result_lst} for x in result_lst}
 
-
 for data in test_data:
 	answer = data.pop('result')
 
@@ -68,6 +62,7 @@ for data in test_data:
 					# Add probability of feature given team given res
 					p += math.log(feature_prob[res][teams[x]][team_lst[x]][feature_lst[y]][vector[y]])
 		except KeyError as e:
+			print("Error: 1")
 			continue
 
 		# Check which P is highest
@@ -77,25 +72,15 @@ for data in test_data:
 	try:
 		# Update confusion matrix
 		confusion_matrix[answer][max_res] += 1
+	
+		if max_res == answer:
+			correct[0] += 1
+		else:
+			correct[1] += 1
 	except:
+		print("Error: 2")
 		continue
 
-	if max_res == answer:
-		correct[0] += 1
-	else:
-		correct[1] += 1
 
 # Print the confusion matrix in a table
-print('\nNaïve Bayes')
-t = PrettyTable([''] + result_lst)
-
-for x in result_lst:
-	results = [x]
-	for y in result_lst:
-		results.append(confusion_matrix[x][y])
-	t.add_row(results)
-
-print(t)
-
-print('\nCrude accuracy: {0}%\n'.format((correct[0] * 100) / sum(correct)))
-
+lib.print_results(confusion_matrix, correct)
